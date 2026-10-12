@@ -1,0 +1,165 @@
+<div class="users-dashboard">
+  <!-- LEFT: User List -->
+  <section class="users-section users-list-panel">
+    <div class="users-header">
+      <div>
+        <h2>Our Users</h2>
+        <p class="users-subtitle">Meet the people in your application</p>
+      </div>
+
+      <button class="load-users-btn" type="button" (click)="loadUsers()" [disabled]="loading()">
+        @if (loading()) {
+          Loading...
+        } @else {
+          ↻ Load Users
+        }
+      </button>
+    </div>
+
+    @if (loading()) {
+      <p class="users-status">Loading users...</p>
+    }
+
+    @if (error()) {
+      <p class="users-error">{{ error() }}</p>
+    }
+
+    @if (users().length > 0) {
+      <div class="users-grid">
+        @for (user of users(); track user.id) {
+          <article class="user-card">
+            <div class="user-avatar">
+              {{ user.name.charAt(0).toUpperCase() }}
+            </div>
+
+            <div class="user-details">
+              <h3>{{ user.name }}</h3>
+
+              <span class="user-id"> USER #{{ user.id }} </span>
+
+              <p class="user-username">
+                <span>Username</span>
+                {{ user.username }}
+              </p>
+
+              <a class="user-email" [href]="'mailto:' + user.email"> ✉ {{ user.email }} </a>
+
+              <div class="user-actions">
+                <button type="button" class="edit-user-btn" (click)="startEdit(user)">
+                  ✏️ Edit
+                </button>
+
+                <button type="button" class="delete-user-btn" (click)="deleteUser(user)">
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    } @else if (!loading() && !error()) {
+      <div class="users-empty">
+        <span>👥</span>
+        <p>No users loaded yet.</p>
+        <small> Click "Load Users" to see the user list. </small>
+      </div>
+    }
+  </section>
+
+  <!-- RIGHT: Create / Edit User Form -->
+  <section class="user-form-panel">
+    <div class="form-header">
+      <div class="form-icon">
+        @if (editingUserId() !== null) {
+          ✏️
+        } @else {
+          👤
+        }
+      </div>
+
+      <div>
+        <h2>
+          {{ editingUserId() !== null ? 'Edit User' : 'Create New User' }}
+        </h2>
+
+        <p>
+          {{
+            editingUserId() !== null
+              ? 'Update the selected user details'
+              : 'Add a new user to your application'
+          }}
+        </p>
+      </div>
+    </div>
+
+    <form class="user-form" (submit)="$event.preventDefault(); createUser()">
+      <div class="form-field">
+        <label for="name">Full Name</label>
+
+        <input
+          id="name"
+          type="text"
+          placeholder="Enter full name"
+          [value]="newUserFullName()"
+          (input)="newUserFullName.set($any($event.target).value)"
+          required
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="username">Username</label>
+
+        <input
+          id="username"
+          type="text"
+          placeholder="Enter username"
+          [value]="newUserUsername()"
+          (input)="newUserUsername.set($any($event.target).value)"
+          required
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="email">Email Address</label>
+
+        <input
+          id="email"
+          type="email"
+          placeholder="Enter email address"
+          [value]="newUserEmail()"
+          (input)="newUserEmail.set($any($event.target).value)"
+          required
+        />
+      </div>
+
+      @if (createSuccess()) {
+        <div class="form-message success-message">
+          <span>✓</span>
+          {{ createSuccess() }}
+        </div>
+      }
+
+      @if (createError()) {
+        <div class="form-message error-message">
+          <span>!</span>
+          {{ createError() }}
+        </div>
+      }
+
+      <button class="submit-user-btn" type="submit" [disabled]="creatingUser()">
+        @if (creatingUser()) {
+          Saving...
+        } @else if (editingUserId() !== null) {
+          ✓ Update User
+        } @else {
+          + Create User
+        }
+      </button>
+    </form>
+
+    <div class="form-footer">
+      <span class="footer-dot"></span>
+      All fields are required
+    </div>
+  </section>
+</div>
